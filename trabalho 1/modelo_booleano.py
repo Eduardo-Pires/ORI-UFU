@@ -10,7 +10,7 @@ arquivoBase = sys.argv[1]
 arquivoConsulta = sys.argv[2]
 
 stopwords = nltk.corpus.stopwords.words("portuguese")
-pontuacao = list(string.punctuation) + ['...', "''", '\x97']
+pontuacao = list(string.punctuation) + ['...', "''", '\x97', '..', '....']
 extrator = nltk.stem.RSLPStemmer()
 
 with open(arquivoBase, 'r', encoding='utf-8') as bf:
