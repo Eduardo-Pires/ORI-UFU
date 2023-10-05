@@ -23,22 +23,16 @@ with open(arquivoBase, 'r', encoding='utf-8') as bf:
             texto = arquivo.read()
             tokens = nltk.wordpunct_tokenize(texto)
             tokens = [extrator.stem(token) for token in tokens if token.lower() not in stopwords and token not in pontuacao]
-            for token in tokens:
+            for token in set(tokens):
                 if token not in indiceInvertido:
-                    indiceInvertido[token] = [(counter, 1)]  # Usando uma lista de tuplas
-                else:
-                    # Verificando se o documento já está na lista
-                    doc_presente = False
-                    for i, (doc_id, count) in enumerate(indiceInvertido[token]):
-                        if doc_id == counter:
-                            doc_presente = True
-                            indiceInvertido[token][i] = (doc_id, count + 1)
-                            break
-                    if not doc_presente:
-                        indiceInvertido[token].append((counter, 1))
+                    indiceInvertido[token] = []
+                indiceInvertido[token].append((counter, tokens.count(token)))
         counter += 1
-    print(indiceInvertido)
-
+    with open("indice.txt", "w") as indice:
+        for palavra, indices in indiceInvertido.items():
+            sequenciaIndices = [f"{indice[0]},{indice[1]}" for indice in indices]
+            termo = f"{palavra}: {' '.join(sequenciaIndices)}\n"
+            indice.write(termo)
 
 with open(arquivoConsulta, 'r', encoding='utf-8') as bc:
     consulta = bc.read()
