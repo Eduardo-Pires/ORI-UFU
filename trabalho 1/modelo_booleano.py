@@ -2,10 +2,6 @@ import nltk
 import string
 import sys
 
-if len(sys.argv) != 3:
-    print("entrada errada, favor chamar:  python modelo_booleano.py base.txt consulta.txt")
-    sys.exit(1)
-
 arquivoBase = sys.argv[1]
 arquivoConsulta = sys.argv[2]
 
@@ -49,38 +45,55 @@ with open(arquivoConsulta, 'r', encoding='utf-8') as bc:
     consulta = bc.read()
     tokensConsulta = nltk.wordpunct_tokenize(consulta)
     tokensConsulta = [extrator.stem(token) for token in tokensConsulta if token not in stopwords]
+    print(tokensConsulta)
 
     resultados = []
+
     i = 0
     while i < len(tokensConsulta):
         termo = tokensConsulta[i]
 
-        if termo == "&":
-            i += 1
-            token = tokensConsulta[i]
-            if token in indiceInvertido:
-                resultados = intersection(resultados, indiceInvertido[token])
-        elif termo == "|":
-            i += 1
-            token = tokensConsulta[i]
-            if token in indiceInvertido:
-                resultados = resultados + indiceInvertido[token]
-        elif termo == "!":
-            i += 1
-            token = tokensConsulta[i]
-            if token in indiceInvertido:
-                resultados = negation(resultados, indiceInvertido[token])
-        else:
-            if termo in indiceInvertido:
-                if resultados:
-                    resultados = intersection(resultados, indiceInvertido[termo])
-                else:
-                    resultados = indiceInvertido[termo]
+        match termo:
+            case "&":
+                if i + 1 < len(tokensConsulta) and tokensConsulta[i + 1] == "!":
+                    token = tokensConsulta[i + 2]
+                    if token in indiceInvertido:
+                        resultados = negation(resultados, indiceInvertido[token])
+                    i += 2
+                elif i + 1 < len(tokensConsulta):
+                    token = tokensConsulta[i + 1]
+                    if token in indiceInvertido:
+                        resultados = intersection(resultados, indiceInvertido[token])
+                    i += 1
+            case "|":
+                if i + 1 < len(tokensConsulta) and tokensConsulta[i + 1] == "!":
+                    token = tokensConsulta[i + 2]
+                    if token in indiceInvertido:
+                        resultados = negation(resultados, indiceInvertido[token])
+                    i += 2
+                elif i + 1 < len(tokensConsulta):
+                    token = tokensConsulta[i + 1]
+                    if token in indiceInvertido:
+                        resultados = resultados + indiceInvertido[token]
+                    i += 1
+            case "!":
+                if i + 1 < len(tokensConsulta):
+                    token = tokensConsulta[i + 1]
+                    if token in indiceInvertido:
+                        resultados = negation(resultados, indiceInvertido[token])
+                    i += 1
+            case _:
+                if termo in indiceInvertido:
+                    if resultados:
+                        resultados = intersection(resultados, indiceInvertido[termo])
+                    else:
+                        resultados = indiceInvertido[termo]
         i += 1
+
 
     resultadoFinal = [tupla[0] for tupla in resultados]
 
     with open("resposta.txt", "w", encoding='utf-8') as resposta_arquivo:
         resposta_arquivo.write(f"{len(resultadoFinal)}\n")
         for doc_id in resultadoFinal:
-            resposta_arquivo.write(f"{base[doc_id - 1]}\n")  # -1 para compensar a indexação baseada em 1
+            resposta_arquivo.write(f"{base[doc_id - 1]}\n")
