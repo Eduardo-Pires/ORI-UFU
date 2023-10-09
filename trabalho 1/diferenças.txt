@@ -1,0 +1,4 @@
+Palavras em A, mas não em B:
+vov:
+
+Palavras em B, mas não em A:
