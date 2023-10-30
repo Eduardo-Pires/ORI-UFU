@@ -1,6 +1,7 @@
 import nltk
 import string
 import sys
+import numpy
 
 stopwords = nltk.corpus.stopwords.words("portuguese") + ["pra", "porque", "sobre", "pois",
                                                          "embora", "daqui", "enquanto"]
@@ -8,32 +9,47 @@ pontuacao = list(string.punctuation) + ['...', "''", '\x97', '..', '....', "!...
 extrator = nltk.stem.RSLPStemmer()
 
 
-def geradorDeIndiceInvertido(arquivoBase):
+def geradorDeTF_IDF(arquivoBase):
     with open(arquivoBase, 'r', encoding='utf-8') as bf:
-        indiceInvertido = {}
-        counter = 1
+
+        counter = 0
         base = bf.readlines()
         base = [linha.strip() for linha in base]
+        docTFIDF = {linha: None for linha in base}
+        numeroDocumentos = len(base)
+        ocorrenciasToken = {}
+        allTokens = {}
+
         for filePath in base:
             with open(filePath, 'r') as arquivo:
+                termosTFIDF = {}
                 texto = arquivo.read()
                 tokens = nltk.wordpunct_tokenize(texto)
                 tokens = [extrator.stem(token) for token in tokens if
                           token.lower() not in stopwords and token not in pontuacao]
+                allTokens.update(tokens)
+                
                 for token in set(tokens):
-                    if token not in indiceInvertido:
-                        indiceInvertido[token] = []
-                    indiceInvertido[token].append((counter, tokens.count(token)))
+                    if token not in termosTFIDF:
+                        termosTFIDF[token] = None
+                    if token not in ocorrenciasToken:
+                        ocorrenciasToken[token] = 0
+                    ocorrenciasToken[token] += 1
+                    termosTFIDF[token] = 1 + numpy.log10(tokens.count(token))
+            docTFIDF[filePath].append(termosTFIDF)
             counter += 1
-        with open("indice.txt", "w", encoding='utf-8') as indice:
-            for palavra, indices in indiceInvertido.items():
+
+        return {"termoTFIDF": termosTFIDF, "baseDeDocumentos": base}
+
+
+
+"""
+   #with open("indice.txt", "w", encoding='utf-8') as indice:
+            for palavra, indices in termosTFIDF.items():
                 sequenciaIndices = ' '.join([f"{indice[0]},{indice[1]}" for indice in indices])
 
                 termo = f"{palavra}: {sequenciaIndices}\n"
                 indice.write(termo)
-        return {"indiceInvertido": indiceInvertido, "baseDeDocumentos": base}
-
-
 def intersection(resultado, adicao):
     return list(set(resultado) & set(adicao))
 
@@ -97,7 +113,7 @@ def modeloBooleano(arquivoConsulta, indiceInvertido, base):
             respostaArquivo.write(f"{len(resultadoFinal)}\n")
             for idDocumento in resultadoFinal:
                 respostaArquivo.write(f"{base[idDocumento - 1]}\n")
-
+"""
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -107,6 +123,6 @@ if __name__ == "__main__":
     arquivoBase = sys.argv[1]
     arquivoConsulta = sys.argv[2]
 
-    argumentos = geradorDeIndiceInvertido(arquivoBase)
+    argumentos = geradorDeTF_IDF(arquivoBase)
 
-    modeloBooleano(arquivoConsulta, argumentos["indiceInvertido"], argumentos["baseDeDocumentos"])
+    #modeloBooleano(arquivoConsulta, argumentos["indiceInvertido"], argumentos["baseDeDocumentos"])
