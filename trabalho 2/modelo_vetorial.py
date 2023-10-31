@@ -8,44 +8,39 @@ stopwords = nltk.corpus.stopwords.words("portuguese") + ["pra", "porque", "sobre
 pontuacao = list(string.punctuation) + ['...', "''", '\x97', '..', '....', "!...", ",."]
 extrator = nltk.stem.RSLPStemmer()
 
-
 def geradorDeTF_IDF(arquivoBase):
     with open(arquivoBase, 'r', encoding='utf-8') as bf:
-
-        counter = 0
         base = bf.readlines()
         base = [linha.strip() for linha in base]
-        docTFIDF = {linha: {} for linha in base}
         numeroDocumentos = len(base)
+        docTFIDF = {doc: {} for doc in base}
         documentosComToken = {}
-        allTokens = {}
+        allTokens = set()
 
         for filePath in base:
             with open(filePath, 'r') as arquivo:
                 termosTFIDF = {}
                 texto = arquivo.read()
                 tokens = nltk.wordpunct_tokenize(texto)
-                tokens = [extrator.stem(token) for token in tokens if
-                          token.lower() not in stopwords and token not in pontuacao]
+                tokens = [extrator.stem(token) for token in tokens if token.lower() not in stopwords and token not in pontuacao]
                 allTokens.update(tokens)
 
                 for token in set(tokens):
-                    if token not in termosTFIDF:
-                        termosTFIDF[token] = None
-                    if token not in documentosComToken:
-                        documentosComToken[token] = 0
-                    documentosComToken[token] += 1
                     termosTFIDF[token] = 1 + numpy.log10(tokens.count(token))
-            docTFIDF[filePath].append(termosTFIDF)
-            counter += 1
+                    documentosComToken[token] = documentosComToken.get(token, 0) + 1
+
+                docTFIDF[filePath] = termosTFIDF
+
         for doc in base:
             for token in allTokens:
                 if token not in docTFIDF[doc]:
                     docTFIDF[doc][token] = 0
                 else:
-                    docTFIDF[doc][token] *= numeroDocumentos/documentosComToken[token]
+                    docTFIDF[doc][token] *= numeroDocumentos / documentosComToken[token]
 
-        return {"termoTFIDF": termosTFIDF, "baseDeDocumentos": base}
+        print(docTFIDF)
+        return {"docTFIDF": docTFIDF, "baseDeDocumentos": base}
+
 
 
 
