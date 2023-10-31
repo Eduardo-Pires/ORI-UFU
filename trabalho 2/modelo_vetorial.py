@@ -36,9 +36,8 @@ def geradorDeTF_IDF(arquivoBase):
                 if token not in docTFIDF[doc]:
                     docTFIDF[doc][token] = 0
                 else:
-                    docTFIDF[doc][token] *= numeroDocumentos / documentosComToken[token]
+                    docTFIDF[doc][token] *= numpy.log10(numeroDocumentos / documentosComToken[token])
 
-        print(docTFIDF)
         return {"docTFIDF": docTFIDF, "baseDeDocumentos": base}
 
 
