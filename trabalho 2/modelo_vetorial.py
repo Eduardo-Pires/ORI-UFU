@@ -15,7 +15,7 @@ def geradorDeTF_IDF(arquivoBase):
         counter = 0
         base = bf.readlines()
         base = [linha.strip() for linha in base]
-        docTFIDF = {linha: None for linha in base}
+        docTFIDF = {linha: {} for linha in base}
         numeroDocumentos = len(base)
         documentosComToken = {}
         allTokens = {}
@@ -42,7 +42,8 @@ def geradorDeTF_IDF(arquivoBase):
             for token in allTokens:
                 if token not in docTFIDF[doc]:
                     docTFIDF[doc][token] = 0
-
+                else:
+                    docTFIDF[doc][token] *= numeroDocumentos/documentosComToken[token]
 
         return {"termoTFIDF": termosTFIDF, "baseDeDocumentos": base}
 
