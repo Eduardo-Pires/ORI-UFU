@@ -17,7 +17,7 @@ def geradorDeTF_IDF(arquivoBase):
         base = [linha.strip() for linha in base]
         docTFIDF = {linha: None for linha in base}
         numeroDocumentos = len(base)
-        ocorrenciasToken = {}
+        documentosComToken = {}
         allTokens = {}
 
         for filePath in base:
@@ -28,16 +28,21 @@ def geradorDeTF_IDF(arquivoBase):
                 tokens = [extrator.stem(token) for token in tokens if
                           token.lower() not in stopwords and token not in pontuacao]
                 allTokens.update(tokens)
-                
+
                 for token in set(tokens):
                     if token not in termosTFIDF:
                         termosTFIDF[token] = None
-                    if token not in ocorrenciasToken:
-                        ocorrenciasToken[token] = 0
-                    ocorrenciasToken[token] += 1
+                    if token not in documentosComToken:
+                        documentosComToken[token] = 0
+                    documentosComToken[token] += 1
                     termosTFIDF[token] = 1 + numpy.log10(tokens.count(token))
             docTFIDF[filePath].append(termosTFIDF)
             counter += 1
+        for doc in base:
+            for token in allTokens:
+                if token not in docTFIDF[doc]:
+                    docTFIDF[doc][token] = 0
+
 
         return {"termoTFIDF": termosTFIDF, "baseDeDocumentos": base}
 
