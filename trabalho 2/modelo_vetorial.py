@@ -9,7 +9,7 @@ extrator = nltk.stem.RSLPStemmer()
 
 
 def geradorDeTF_IDF(arquivoBase):
-    with open(arquivoBase, 'r', encoding='utf-8') as bf:
+    with (open(arquivoBase, 'r', encoding='utf-8') as bf):
         base = bf.readlines()
         base = [linha.strip() for linha in base]
         numeroDocumentos = len(base)
@@ -45,27 +45,28 @@ def geradorDeTF_IDF(arquivoBase):
                 stringDocTFIDF = f"{documento}: {sequenciaDeTermos}\n"
                 peso.write(stringDocTFIDF)
 
-        return {"ponderaçãoTF_IDF": docTFIDF, "baseDeDocumentos": base, "listaDeTokens": allTokens}
+        return{
+            "ponderaçãoTF_IDF": docTFIDF,
+            "baseDeDocumentos": base,
+            "listaDeTokens": allTokens,
+            "documentosComToken": documentosComToken
+        }
 
-def consultaTFIDF(consulta, allTokens):
+def consultaTFIDF(tokens, args):
+    allTokens = args["listaDeTokens"]
+    base = args["baseDeDocumentos"]
+    documentosComToken = args["documentosComToken"]
 
-    termosTFIDF = {}
-    documentosComToken = {}
-    docTFIDF = {}
-
-    for token in set(consulta):
-        termosTFIDF[token] = 1 + numpy.log10(tokens.count(token))
-        documentosComToken[token] = documentosComToken.get(token, 0) + 1
-
-    docTFIDF["Consulta"] = termosTFIDF
-
+    numeroDocumentos = len(base)
+    termosTFIDF = {token: 1 + numpy.log10(tokens.count(token)) for token in set(tokens)}
 
     for token in allTokens:
-        if token not in docTFIDF["consulta"]:
-            docTFIDF["consulta"][token] = 0
+        if token not in termosTFIDF:
+            termosTFIDF[token] = 0
         else:
-            docTFIDF["consulta"][token] *= numpy.log10(numeroDocumentos / documentosComToken[token])
+            termosTFIDF[token] *= numpy.log10(numeroDocumentos / documentosComToken[token])
 
+    return termosTFIDF
 
 def intersection(resultado, adicao):
     return list(set(resultado) & set(adicao))
@@ -79,7 +80,7 @@ def similaridade(arquivoConsulta, args):
         consulta = bc.read()
         tokensConsulta = nltk.wordpunct_tokenize(consulta)
         tokensConsulta = [extrator.stem(token) for token in tokensConsulta if token not in stopwords and token != '&']
-        consultaPonderacao = consultaTFIDF(tokensConsulta, allTokens)
+        consultaPonderacao = consultaTFIDF(tokensConsulta, args)
 
         resultados = []
 
