@@ -3,10 +3,10 @@ import string
 import sys
 import numpy
 
-stopwords = nltk.corpus.stopwords.words("portuguese") + ["pra", "porque", "sobre", "pois",
-                                                         "embora", "daqui", "enquanto"]
+stopwords = nltk.corpus.stopwords.words("portuguese")
 pontuacao = list(string.punctuation) + ['...', "''", '\x97', '..', '....', "!...", ",."]
 extrator = nltk.stem.RSLPStemmer()
+
 
 def geradorDeTF_IDF(arquivoBase):
     with open(arquivoBase, 'r', encoding='utf-8') as bf:
@@ -22,7 +22,8 @@ def geradorDeTF_IDF(arquivoBase):
                 termosTFIDF = {}
                 texto = arquivo.read()
                 tokens = nltk.wordpunct_tokenize(texto)
-                tokens = [extrator.stem(token) for token in tokens if token.lower() not in stopwords and token not in pontuacao]
+                tokens = [extrator.stem(token) for token in tokens if token.lower()
+                          not in stopwords and token not in pontuacao]
                 allTokens.update(tokens)
 
                 for token in set(tokens):
@@ -38,74 +39,49 @@ def geradorDeTF_IDF(arquivoBase):
                 else:
                     docTFIDF[doc][token] *= numpy.log10(numeroDocumentos / documentosComToken[token])
 
-        return {"docTFIDF": docTFIDF, "baseDeDocumentos": base}
+        with open("pesos.txt", "w", encoding='utf-8') as peso:
+            for documento, termos in docTFIDF.items():
+                sequenciaDeTermos = ' '.join([f"{termo},{peso}" for termo, peso in termos.items() if peso != 0])
+                stringDocTFIDF = f"{documento}: {sequenciaDeTermos}\n"
+                peso.write(stringDocTFIDF)
+
+        return {"ponderaçãoTF_IDF": docTFIDF, "baseDeDocumentos": base, "listaDeTokens": allTokens}
+
+def consultaTFIDF(consulta, allTokens):
+
+    termosTFIDF = {}
+    documentosComToken = {}
+    docTFIDF = {}
+
+    for token in set(consulta):
+        termosTFIDF[token] = 1 + numpy.log10(tokens.count(token))
+        documentosComToken[token] = documentosComToken.get(token, 0) + 1
+
+    docTFIDF["Consulta"] = termosTFIDF
 
 
+    for token in allTokens:
+        if token not in docTFIDF["consulta"]:
+            docTFIDF["consulta"][token] = 0
+        else:
+            docTFIDF["consulta"][token] *= numpy.log10(numeroDocumentos / documentosComToken[token])
 
 
-"""
-   #with open("indice.txt", "w", encoding='utf-8') as indice:
-            for palavra, indices in termosTFIDF.items():
-                sequenciaIndices = ' '.join([f"{indice[0]},{indice[1]}" for indice in indices])
-
-                termo = f"{palavra}: {sequenciaIndices}\n"
-                indice.write(termo)
 def intersection(resultado, adicao):
     return list(set(resultado) & set(adicao))
 
+def similaridade(arquivoConsulta, args):
+    basePonderacao = args["ponderaçãoTF_IDF"]
+    base = args["baseDeDocumentos"]
+    allTokens = args["listaDeTokens"]
 
-def negation(resultado, remocao):
-    return list(set(resultado) - set(remocao))
-
-
-def modeloBooleano(arquivoConsulta, indiceInvertido, base):
     with open(arquivoConsulta, 'r', encoding='utf-8') as bc:
         consulta = bc.read()
         tokensConsulta = nltk.wordpunct_tokenize(consulta)
-        tokensConsulta = [extrator.stem(token) for token in tokensConsulta if token not in stopwords]
+        tokensConsulta = [extrator.stem(token) for token in tokensConsulta if token not in stopwords and token != '&']
+        consultaPonderacao = consultaTFIDF(tokensConsulta, allTokens)
 
         resultados = []
-
-        i = 0
-        while i < len(tokensConsulta):
-            termo = tokensConsulta[i]
-
-            match termo:
-                case "&":
-                    if i + 1 < len(tokensConsulta) and tokensConsulta[i + 1] == "!":
-                        token = tokensConsulta[i + 2]
-                        if token in indiceInvertido:
-                            resultados = negation(resultados, indiceInvertido[token])
-                        i += 2
-                    elif i + 1 < len(tokensConsulta):
-                        token = tokensConsulta[i + 1]
-                        if token in indiceInvertido:
-                            resultados = intersection(resultados, indiceInvertido[token])
-                        i += 1
-                case "|":
-                    if i + 1 < len(tokensConsulta) and tokensConsulta[i + 1] == "!":
-                        token = tokensConsulta[i + 2]
-                        if token in indiceInvertido:
-                            resultados = negation(resultados, indiceInvertido[token])
-                        i += 2
-                    elif i + 1 < len(tokensConsulta):
-                        token = tokensConsulta[i + 1]
-                        if token in indiceInvertido:
-                            resultados = resultados + indiceInvertido[token]
-                        i += 1
-                case "!":
-                    if i + 1 < len(tokensConsulta):
-                        token = tokensConsulta[i + 1]
-                        if token in indiceInvertido:
-                            resultados = negation(resultados, indiceInvertido[token])
-                        i += 1
-                case _:
-                    if termo in indiceInvertido:
-                        if resultados:
-                            resultados = intersection(resultados, indiceInvertido[termo])
-                        else:
-                            resultados = indiceInvertido[termo]
-            i += 1
 
         resultadoFinal = [tupla[0] for tupla in resultados]
 
@@ -113,7 +89,7 @@ def modeloBooleano(arquivoConsulta, indiceInvertido, base):
             respostaArquivo.write(f"{len(resultadoFinal)}\n")
             for idDocumento in resultadoFinal:
                 respostaArquivo.write(f"{base[idDocumento - 1]}\n")
-"""
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -123,6 +99,4 @@ if __name__ == "__main__":
     arquivoBase = sys.argv[1]
     arquivoConsulta = sys.argv[2]
 
-    argumentos = geradorDeTF_IDF(arquivoBase)
-
-    #modeloBooleano(arquivoConsulta, argumentos["indiceInvertido"], argumentos["baseDeDocumentos"])
+    similaridade(arquivoConsulta, geradorDeTF_IDF(arquivoBase))
