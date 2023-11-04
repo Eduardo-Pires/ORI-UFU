@@ -29,19 +29,19 @@ def gerador_de_tfidf(base_arquivo):
 
                 all_tokens.update(tokens)
 
-                termos_tfidf = {}
                 for token in set(tokens):
-                    termos_tfidf[token] = 1 + numpy.log10(tokens.count(token))
                     documentos_com_token[token] = documentos_com_token.get(token, 0) + 1
 
-                documentos_tfidf[documento] = termos_tfidf
+                    tf = 1 + numpy.log10(tokens.count(token))
+                    documentos_tfidf[documento][token] = tf
 
         for documento in base:
             for token in all_tokens:
                 if token not in documentos_tfidf[documento]:
                     documentos_tfidf[documento][token] = 0
                 else:
-                    documentos_tfidf[documento][token] *= numpy.log10(numero_de_documentos / documentos_com_token[token])
+                    idf = numpy.log10(numero_de_documentos / documentos_com_token[token])
+                    documentos_tfidf[documento][token] *= idf
 
         with open("pesos.txt", "w", encoding='utf-8') as arquivo_de_pesos:
             for documento, termos in documentos_tfidf.items():
