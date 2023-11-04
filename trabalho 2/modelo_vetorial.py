@@ -8,90 +8,94 @@ pontuacao = list(string.punctuation) + ['...', "''", '\x97', '..', '....', "!...
 extrator = nltk.stem.RSLPStemmer()
 
 
-def geradorDeTF_IDF(arquivoBase):
-    with (open(arquivoBase, 'r', encoding='utf-8') as bf):
+def gerador_de_tf_idf(base_arquivo):
+    with (open(base_arquivo, 'r', encoding='utf-8') as bf):
         base = bf.readlines()
         base = [linha.strip() for linha in base]
-        numeroDocumentos = len(base)
-        docTFIDF = {doc: {} for doc in base}
-        documentosComToken = {}
-        allTokens = set()
+        numero_documentos = len(base)
+        doc_tfidf = {doc: {} for doc in base}
+        documentos_com_token = {}
+        all_tokens = set()
 
         for filePath in base:
             with open(filePath, 'r') as arquivo:
-                termosTFIDF = {}
+                termos_tfidf = {}
                 texto = arquivo.read()
                 tokens = nltk.wordpunct_tokenize(texto)
                 tokens = [extrator.stem(token) for token in tokens if token.lower()
                           not in stopwords and token not in pontuacao]
-                allTokens.update(tokens)
+                all_tokens.update(tokens)
 
                 for token in set(tokens):
-                    termosTFIDF[token] = 1 + numpy.log10(tokens.count(token))
-                    documentosComToken[token] = documentosComToken.get(token, 0) + 1
+                    termos_tfidf[token] = 1 + numpy.log10(tokens.count(token))
+                    documentos_com_token[token] = documentos_com_token.get(token, 0) + 1
 
-                docTFIDF[filePath] = termosTFIDF
+                doc_tfidf[filePath] = termos_tfidf
 
         for doc in base:
-            for token in allTokens:
-                if token not in docTFIDF[doc]:
-                    docTFIDF[doc][token] = 0
+            for token in all_tokens:
+                if token not in doc_tfidf[doc]:
+                    doc_tfidf[doc][token] = 0
                 else:
-                    docTFIDF[doc][token] *= numpy.log10(numeroDocumentos / documentosComToken[token])
+                    doc_tfidf[doc][token] *= numpy.log10(numero_documentos / documentos_com_token[token])
 
         with open("pesos.txt", "w", encoding='utf-8') as peso:
-            for documento, termos in docTFIDF.items():
-                sequenciaDeTermos = ' '.join([f"{termo},{peso}" for termo, peso in termos.items() if peso != 0])
-                stringDocTFIDF = f"{documento}: {sequenciaDeTermos}\n"
-                peso.write(stringDocTFIDF)
+            for documento, termos in doc_tfidf.items():
+                sequencia_de_termos = ' '.join([f"{termo},{peso}" for termo, peso in termos.items() if peso != 0])
+                string_doc_tfidf = f"{documento}: {sequencia_de_termos}\n"
+                peso.write(string_doc_tfidf)
 
-        return{
-            "ponderaçãoTF_IDF": docTFIDF,
+        return {
+            "ponderaçãoTFIDF": doc_tfidf,
             "baseDeDocumentos": base,
-            "listaDeTokens": allTokens,
-            "documentosComToken": documentosComToken
+            "listaDeTokens": all_tokens,
+            "documentosComToken": documentos_com_token
         }
 
-def consultaTFIDF(tokens, args):
-    allTokens = args["listaDeTokens"]
+
+def consulta_tfidf(tokens, args):
+    all_tokens = args["listaDeTokens"]
     base = args["baseDeDocumentos"]
-    documentosComToken = args["documentosComToken"]
+    documentos_com_token = args["documentosComToken"]
 
-    numeroDocumentos = len(base)
-    termosTFIDF = {token: 1 + numpy.log10(tokens.count(token)) for token in set(tokens)}
+    numero_documentos = len(base)
+    termos_tfidf = {}
 
-    for token in allTokens:
-        if token not in termosTFIDF:
-            termosTFIDF[token] = 0
-        else:
-            termosTFIDF[token] *= numpy.log10(numeroDocumentos / documentosComToken[token])
+    for token in all_tokens:
+        tf = 1 + numpy.log10(tokens.count(token)) if token in tokens else 0
+        idf = numpy.log10(numero_documentos / documentos_com_token[token])
+        termos_tfidf[token] = tf * idf
 
-    return termosTFIDF
+    return termos_tfidf
 
-def intersection(resultado, adicao):
-    return list(set(resultado) & set(adicao))
 
-def similaridade(arquivoConsulta, args):
-    basePonderacao = args["ponderaçãoTF_IDF"]
+def similaridade(consulta_arquivo, args):
+    base_ponderacao = args["ponderaçãoTFIDF"]
     base = args["baseDeDocumentos"]
-    allTokens = args["listaDeTokens"]
+    all_tokens = args["listaDeTokens"]
 
-    with open(arquivoConsulta, 'r', encoding='utf-8') as bc:
+    with open(consulta_arquivo, 'r', encoding='utf-8') as bc:
         consulta = bc.read()
-        tokensConsulta = nltk.wordpunct_tokenize(consulta)
-        tokensConsulta = [extrator.stem(token) for token in tokensConsulta if token not in stopwords and token != '&']
-        consultaPonderacao = consultaTFIDF(tokensConsulta, args)
+        tokens_consulta = nltk.wordpunct_tokenize(consulta)
+        tokens_consulta = [extrator.stem(token) for token in tokens_consulta if token not in stopwords and token != '&']
+        consulta_ponderacao = consulta_tfidf(tokens_consulta, args)
+        print(consulta_ponderacao)
 
-        resultados = []
 
-        resultadoFinal = [tupla[0] for tupla in resultados]
+"""
+     resultados = []
 
-        with open("resposta.txt", "w", encoding='utf-8') as respostaArquivo:
+    resultadoFinal = [tupla[0] for tupla in resultados]
+
+    def intersection(resultado, adicao):
+        return list(set(resultado) & set(adicao))
+        
+   #     with open("resposta.txt", "w", encoding='utf-8') as respostaArquivo:
             respostaArquivo.write(f"{len(resultadoFinal)}\n")
             for idDocumento in resultadoFinal:
                 respostaArquivo.write(f"{base[idDocumento - 1]}\n")
 
-
+"""
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Entrada errada, favor chamar:  > python modelo_vetorial.py base.txt consulta.txt")
@@ -100,4 +104,4 @@ if __name__ == "__main__":
     arquivoBase = sys.argv[1]
     arquivoConsulta = sys.argv[2]
 
-    similaridade(arquivoConsulta, geradorDeTF_IDF(arquivoBase))
+    similaridade(arquivoConsulta, gerador_de_tf_idf(arquivoBase))
