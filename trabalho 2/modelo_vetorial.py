@@ -23,16 +23,16 @@ def gerador_de_tfidf(base_arquivo):
             with open(documento, 'r') as caminho_arquivo:
                 texto = caminho_arquivo.read()
 
-                tokens = nltk.wordpunct_tokenize(texto)
-                tokens = [extrator.stem(token) for token in tokens if token.lower()
-                          not in stopwords and token not in pontuacao]
+                tokens_base = nltk.wordpunct_tokenize(texto)
+                tokens_base = [extrator.stem(token) for token in tokens_base
+                               if token.lower() not in stopwords and token not in pontuacao]
 
-                all_tokens.update(tokens)
+                all_tokens.update(tokens_base)
 
-                for token in set(tokens):
+                for token in set(tokens_base):
                     documentos_com_token[token] = documentos_com_token.get(token, 0) + 1
 
-                    tf = 1 + numpy.log10(tokens.count(token))
+                    tf = 1 + numpy.log10(tokens_base.count(token))
                     documentos_tfidf[documento][token] = tf
 
         for documento in base:
@@ -85,7 +85,8 @@ def similaridade(consulta_arquivo, argumentos):
         consulta = arquivo_de_consulta.read()
 
         tokens_consulta = nltk.wordpunct_tokenize(consulta)
-        tokens_consulta = [extrator.stem(token) for token in tokens_consulta if token not in stopwords and token != '&']
+        tokens_consulta = [extrator.stem(token) for token in tokens_consulta
+                           if token not in stopwords and token != '&']
 
         consulta_ponderacao = consulta_tfidf(tokens_consulta, argumentos)
         print(consulta_ponderacao)
