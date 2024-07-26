@@ -1,8 +1,8 @@
 7
-pai.samba
-foi_um_rio_que_passou_em_minha_vida.samba
-samba_a_dois.samba
-nao_quero_saber_mais_dela.samba
-posso_ate_me_apaixonar.samba
-eu_sambo_mesmo.samba
-meu_lugar.samba
+base_arquivos/pai.samba
+base_arquivos/foi_um_rio_que_passou_em_minha_vida.samba
+base_arquivos/samba_a_dois.samba
+base_arquivos/nao_quero_saber_mais_dela.samba
+base_arquivos/posso_ate_me_apaixonar.samba
+base_arquivos/eu_sambo_mesmo.samba
+base_arquivos/meu_lugar.samba
