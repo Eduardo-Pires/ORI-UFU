@@ -29,10 +29,12 @@ O primeiro trabalho consiste em implementar um índice invertido para uma coleç
 **Entrada:**
 
 - Um arquivo texto contendo a coleção de documentos.
+- Um arquivo contendo a consulta a ser realizada pelo programa.
 
 **Saída:**
 
 - Um arquivo texto contendo o índice invertido.
+- Um arquivo contendo a resposta para a consulta.
 
 [enunciado](https://github.com/Eduardo-Pires/ORI-UFU/blob/main/trabalho%201/Enunciado%20trab1_ori.pdf)
 
