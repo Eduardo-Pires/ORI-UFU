@@ -5,7 +5,7 @@ Para entender esse trabalho com mais detalhes entre no [enunciado](https://githu
 
 ### arquivos importantes:
 #### programa:
-- **modelo_booleano.py**: esse é o programa que foi desenvolvido durante o trabalho.
+- **modelo_vetorial.py**: esse é o programa que foi desenvolvido durante o trabalho.
 #### entrada:
 - **base.txt e base_samba.txt**: nesses arquivo estão os caminhos de duas bases de arquivos que foram utilizadas nesse trabalho, esses arquivos estão nas pastas ```base_arquivos``` e ```base_arquivos_samba```.
 - **consulta.txt, consulta2.txt, consulta3.txt e consulta4.txt**: nesses arquivo estão escritas diferentes consultas, que podem ser alteradas para diferentes resultados, para mais informações sobre como fazer sua própria consulta ler o [enunciado](https://github.com/Eduardo-Pires/ORI-UFU/blob/main/trabalho%202/trab2_ori_2023-1.pdf).
