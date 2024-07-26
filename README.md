@@ -52,7 +52,7 @@ O segundo trabalho consiste na implementação do modelo de Recuperação da Inf
 **Saída:**
 
 - Um arquivo texto contendo a ponderação TF-IDF de cada documento.
-- Um arquivo texto contendo os nomes dos documentos que atendem à consulta.
+- Um arquivo texto contendo os documentos que atendem à consulta.
 
 [enunciado](https://github.com/Eduardo-Pires/ORI-UFU/blob/main/trabalho%202/trab2_ori_2023-1.pdf)
 
