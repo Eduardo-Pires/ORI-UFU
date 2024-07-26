@@ -1,12 +1,2 @@
-11
-o_que_e_o_amor.samba: 0.08829870725172748
-ja_e.samba: 0.08114974121319532
-andanca.samba: 0.0746267092099566
-foi_um_rio_que_passou_em_minha_vida.samba: 0.06874214276378686
-jessica.samba: 0.06700880489860554
-conselho.samba: 0.06071062167601679
-a_flor_e_o_espinho.samba: 0.055678356345947824
-verdade_chinesa.samba: 0.051721590131023266
-enfeiticado.samba: 0.03972440697827433
-posso_ate_me_apaixonar.samba: 0.030483269269504187
-meu_lugar.samba: 0.025850078283917406
+1
+base_arquivos/c.txt: 0.4445781001683895

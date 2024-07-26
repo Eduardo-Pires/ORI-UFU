@@ -1,3 +1,3 @@
-a.txt
-b.txt
-c.txt
+base_arquivos/a.txt
+base_arquivos/b.txt
+base_arquivos/c.txt
