@@ -6,10 +6,10 @@ Para entender esse trabalho com mais detalhes entre no [enunciado](https://githu
 ### arquivos importantes:
 #### programa:
 - **modelo_booleano.py**: esse é o programa que foi desenvolvido durante o trabalho.
-#### entrada
+#### entrada:
 - **base.txt**: nesse arquivo estão os caminhos da base de arquivos que foi usada para a execução do trabalho, esses arquivos estão na pasta ```base_arquivos```.
 - **consulta.txt**: nesse arquivo em que deve ser escrita a consulta, para mais informações sobre como a consulta deve ser feita ler o [enunciado](https://github.com/Eduardo-Pires/ORI-UFU/blob/main/trabalho%201/Enunciado%20trab1_ori.pdf).
-#### saída
+#### saída:
 - **resposta.txt**: nesse arquivo está a resposta para a consulta que foi feita.
 - **indice.txt**: nesse arquivo está o índice invertido conforme a base de arquivos.
 #### verificação:
